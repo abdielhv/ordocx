@@ -1,61 +1,42 @@
 
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>ORDOCX v10</title>
-<link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
-<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
-<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<title>ORDOCX</title>
+<style>
+body{background:#0f172a;color:white;font-family:Arial}
+.panel{background:#1e293b;padding:15px;margin:10px;border-radius:6px}
+button{padding:8px 12px;margin-top:5px}
+</style>
 </head>
-
 <body>
 
-<h1>ORDOCX v10 – Motor de Automatización Documental</h1>
+<div class="panel">
+API KEY<br>
+<input id="apiKey" style="width:400px">
+</div>
 
-<section class="panel">
-<h3>Configuración API Gemini</h3>
-<input id="apiKey" placeholder="AIza...">
-<button onclick="validateAPI()">Validar</button>
-<span id="apiStatus">No validada</span>
-</section>
-
-<section class="panel">
+<div class="panel">
 <h3>Documentos Fuente</h3>
-<input type="file" id="sourceFiles" multiple onchange="listFiles()">
-<ul id="fileList"></ul>
-</section>
+<input type="file" multiple onchange="addFiles(this)">
+<div id="fileList"></div>
+</div>
 
-<section class="panel">
-<h3>Documento Destino (Plantilla)</h3>
-<input type="file" id="templateFile">
-</section>
+<div class="panel">
+<h3>Instrucciones</h3>
+<textarea id="instructions" style="width:100%;height:100px"></textarea>
+</div>
 
-<section class="panel">
-<h3>Instrucciones para el resultado final</h3>
-<textarea id="instructions" rows="6"
-placeholder="Describe cómo debe generarse el documento final"></textarea>
-</section>
+<div class="panel">
+<button onclick="processBatch()">Procesar documentos</button>
+</div>
 
-<section class="panel">
-<h3>Procesamiento</h3>
-<button onclick="processAll()">Procesar documentos</button>
-<div id="progress"></div>
-</section>
-
-<section class="panel">
+<div class="panel">
 <h3>Resultados</h3>
-<pre id="output"></pre>
-</section>
-
-<section class="panel">
-<button onclick="exportWord()">Descargar Documento Final</button>
-</section>
+<pre id="results"></pre>
+<button onclick="exportResult()">Descargar Resultado</button>
+</div>
 
 <script src="engine.js"></script>
 

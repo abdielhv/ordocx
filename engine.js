@@ -1,154 +1,132 @@
 
-let results = {}
-let extractedText = ""
+let uploadedFiles = []
 
-function validateAPI(){
-
-const key=document.getElementById("apiKey").value
-
-if(key.startsWith("AIza")){
-document.getElementById("apiStatus").innerText="API válida"
-}else{
-document.getElementById("apiStatus").innerText="API inválida"
+function addFiles(input){
+const newFiles = Array.from(input.files)
+uploadedFiles = [...uploadedFiles, ...newFiles]
+renderFileList()
 }
 
-}
-
-function listFiles(){
-
-const files=document.getElementById("sourceFiles").files
-const list=document.getElementById("fileList")
-
-list.innerHTML=""
-
-for(const f of files){
-
-const li=document.createElement("li")
-li.textContent=f.name
-list.appendChild(li)
-
-}
-
-}
-
-async function processAll(){
-
-const files=document.getElementById("sourceFiles").files
-const template=document.getElementById("templateFile").files[0]
-const instructions=document.getElementById("instructions").value
-
-extractedText=""
-
-for(const file of files){
-
-document.getElementById("progress").innerText="Procesando "+file.name
-let text=await extractText(file)
-extractedText += "\n"+text
-
-}
-
-const templateText = await extractText(template)
-const data = await analyzeWithGemini(extractedText,templateText,instructions)
-
-results=data
-
-document.getElementById("progress").innerText="Procesamiento completado"
-document.getElementById("output").innerText=JSON.stringify(results,null,2)
-
+function renderFileList(){
+const container = document.getElementById("fileList")
+container.innerHTML = ""
+uploadedFiles.forEach((file)=>{
+const item = document.createElement("div")
+item.style.padding="4px"
+item.style.borderBottom="1px solid #333"
+item.innerText=file.name
+container.appendChild(item)
+})
 }
 
 async function extractText(file){
 
-if(!file) return ""
+const ext = file.name.split(".").pop().toLowerCase()
 
-const type=file.name.split(".").pop().toLowerCase()
-
-if(type==="png"||type==="jpg"||type==="jpeg"){
-const r=await Tesseract.recognize(file)
-return r.data.text
+if(ext==="pdf"){
+const pdf = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise
+let text=""
+for(let i=1;i<=pdf.numPages;i++){
+const page = await pdf.getPage(i)
+const content = await page.getTextContent()
+text += content.items.map(i=>i.str).join(" ")
+}
+return text
 }
 
-if(type==="xlsx"){
-const data=await file.arrayBuffer()
-const wb=XLSX.read(data)
-const sheet=wb.Sheets[wb.SheetNames[0]]
-return XLSX.utils.sheet_to_csv(sheet)
+if(ext==="docx"){
+const arrayBuffer = await file.arrayBuffer()
+const result = await mammoth.extractRawText({arrayBuffer})
+return result.value
 }
 
-if(type==="docx"){
-const buffer=await file.arrayBuffer()
-const r=await mammoth.extractRawText({arrayBuffer:buffer})
-return r.value
+if(ext==="xlsx" || ext==="xls"){
+const data = await file.arrayBuffer()
+const workbook = XLSX.read(data)
+let text=""
+workbook.SheetNames.forEach(name=>{
+const sheet = workbook.Sheets[name]
+text += XLSX.utils.sheet_to_csv(sheet)
+})
+return text
 }
 
-if(type==="pdf"){
-const buffer=await file.arrayBuffer()
-const pdf=await pdfjsLib.getDocument({data:buffer}).promise
-let fullText=""
-for(let p=1;p<=pdf.numPages;p++){
-const page=await pdf.getPage(p)
-const content=await page.getTextContent()
-fullText+=content.items.map(i=>i.str).join(" ")
-}
-return fullText
+if(ext==="jpg" || ext==="jpeg" || ext==="png"){
+const { data:{ text } } = await Tesseract.recognize(file,"spa")
+return text
 }
 
 return ""
-
 }
 
-async function analyzeWithGemini(sourceText,templateText,instructions){
+async function analyzeWithGemini(text,instructions){
 
-const key=document.getElementById("apiKey").value
+const key = document.getElementById("apiKey").value
 
-const prompt=`
-Analiza los documentos fuente y la plantilla destino.
+const prompt = `
+Analiza el siguiente texto y devuelve la información estructurada.
 
-Documentos fuente:
-${sourceText}
-
-Plantilla destino:
-${templateText}
-
-Instrucciones del usuario:
+INSTRUCCIONES:
 ${instructions}
 
-Devuelve un JSON con los datos que deben insertarse en la plantilla.
+TEXTO:
+${text.slice(0,12000)}
 `
 
-const response=await fetch(
-`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`,
+const response = await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
 {
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({
 contents:[{parts:[{text:prompt}]}]
 })
-})
+}
+)
 
-const data=await response.json()
-return data
+const data = await response.json()
 
+if(data.error){
+return JSON.stringify(data.error,null,2)
 }
 
-async function exportWord(){
+return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta"
+}
 
-const {Document,Packer,Paragraph,TextRun}=docx
+async function processBatch(){
 
-const doc=new Document({
-sections:[{
-children:[
-new Paragraph({children:[new TextRun("Resultado generado por ORDOCX")]}),
-new Paragraph({children:[new TextRun(JSON.stringify(results,null,2))]})
-]
-}]
-})
+const resultsContainer = document.getElementById("results")
+resultsContainer.innerText="Procesando..."
 
-const blob=await Packer.toBlob(doc)
+const instructions = document.getElementById("instructions").value
 
-const a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="resultado_final.docx"
+if(uploadedFiles.length===0){
+resultsContainer.innerText="No hay archivos cargados"
+return
+}
+
+const texts = await Promise.all(
+uploadedFiles.map(file=>extractText(file))
+)
+
+const combinedText = texts.join("\n\n")
+
+const result = await analyzeWithGemini(combinedText,instructions)
+
+resultsContainer.innerText=result
+}
+
+function exportResult(){
+
+const text = document.getElementById("results").innerText
+
+const blob = new Blob([text],{type:"text/plain"})
+
+const a = document.createElement("a")
+
+a.href = URL.createObjectURL(blob)
+
+a.download="resultado.txt"
+
 a.click()
-
 }
