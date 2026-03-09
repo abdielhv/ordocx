@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>ORDOCX v7</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+
+</head>
+
+<body>
+
+<h1>ORDOCX v7 – Automatización Documental</h1>
+
+<section class="panel">
+<h3>Gemini API</h3>
+<input id="apiKey" placeholder="AIza...">
+<button onclick="validateAPI()">Validar</button>
+<span id="apiStatus">No validada</span>
+</section>
+
+<section class="panel">
+<h3>Cargar documentos</h3>
+<input type="file" id="files" multiple>
+<button onclick="processBatch()">Procesar lote</button>
+</section>
+
+<section class="panel">
+<h3>Resultados</h3>
+<pre id="output"></pre>
+</section>
+
+<section class="panel">
+<button onclick="exportExcel()">Exportar Excel</button>
+<button onclick="exportPDF()">Exportar PDF</button>
+</section>
+
+<script src="engine.js"></script>
+
+</body>
+</html>
