@@ -1,35 +1,79 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <title>ORDOCX</title>
+
 <style>
-body{background:#0f172a;color:white;font-family:Arial}
-.panel{background:#1e293b;padding:15px;margin:10px;border-radius:6px}
-button{padding:8px 12px;margin-top:5px}
+body{
+background:#0f172a;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+
+.panel{
+background:#1e293b;
+padding:15px;
+border-radius:8px;
+margin-bottom:15px;
+}
+
+button{
+padding:8px 14px;
+border:none;
+border-radius:6px;
+background:#38bdf8;
+cursor:pointer;
+}
+
+textarea{
+width:100%;
+height:100px;
+}
+
+.fileItem{
+padding:4px;
+border-bottom:1px solid #334155;
+}
+
+.status{
+color:#38bdf8;
+font-weight:bold;
+}
 </style>
+
 </head>
+
 <body>
 
+<h2>ORDOCX</h2>
+
 <div class="panel">
-API KEY<br>
-<input id="apiKey" style="width:400px">
+API KEY
+<input id="apiKey" style="width:100%">
 </div>
 
 <div class="panel">
 <h3>Documentos Fuente</h3>
-<input type="file" multiple onchange="addFiles(this)">
+<input type="file" multiple id="fileInput">
 <div id="fileList"></div>
 </div>
 
 <div class="panel">
+<h3>Documento Destino (Plantilla)</h3>
+<input type="file" id="templateFile">
+</div>
+
+<div class="panel">
 <h3>Instrucciones</h3>
-<textarea id="instructions" style="width:100%;height:100px"></textarea>
+<textarea id="instructions"></textarea>
 </div>
 
 <div class="panel">
 <button onclick="processBatch()">Procesar documentos</button>
+<div class="status" id="status"></div>
 </div>
 
 <div class="panel">
@@ -38,6 +82,7 @@ API KEY<br>
 <button onclick="exportResult()">Descargar Resultado</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script src="engine.js"></script>
 
 </body>
