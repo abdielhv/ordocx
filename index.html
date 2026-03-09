@@ -1,9 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>ORDOCX v8</title>
-
+<title>ORDOCX v10</title>
 <link rel="stylesheet" href="style.css">
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -11,12 +11,12 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
-
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
 </head>
 
 <body>
 
-<h1>ORDOCX v8 – Automatización Documental IA</h1>
+<h1>ORDOCX v10 – Motor de Automatización Documental</h1>
 
 <section class="panel">
 <h3>Configuración API Gemini</h3>
@@ -26,8 +26,8 @@
 </section>
 
 <section class="panel">
-<h3>Entrada de Información (Fuente)</h3>
-<input type="file" id="sourceFiles" multiple>
+<h3>Documentos Fuente</h3>
+<input type="file" id="sourceFiles" multiple onchange="listFiles()">
 <ul id="fileList"></ul>
 </section>
 
@@ -37,8 +37,14 @@
 </section>
 
 <section class="panel">
+<h3>Instrucciones para el resultado final</h3>
+<textarea id="instructions" rows="6"
+placeholder="Describe cómo debe generarse el documento final"></textarea>
+</section>
+
+<section class="panel">
 <h3>Procesamiento</h3>
-<button onclick="processAll()">Procesar Información</button>
+<button onclick="processAll()">Procesar documentos</button>
 <div id="progress"></div>
 </section>
 
@@ -48,8 +54,7 @@
 </section>
 
 <section class="panel">
-<button onclick="exportExcel()">Exportar Excel</button>
-<button onclick="exportPDF()">Exportar PDF</button>
+<button onclick="exportWord()">Descargar Documento Final</button>
 </section>
 
 <script src="engine.js"></script>

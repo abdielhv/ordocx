@@ -1,4 +1,6 @@
-let results=[]
+
+let results = {}
+let extractedText = ""
 
 function validateAPI(){
 
@@ -12,37 +14,52 @@ document.getElementById("apiStatus").innerText="API inválida"
 
 }
 
+function listFiles(){
+
+const files=document.getElementById("sourceFiles").files
+const list=document.getElementById("fileList")
+
+list.innerHTML=""
+
+for(const f of files){
+
+const li=document.createElement("li")
+li.textContent=f.name
+list.appendChild(li)
+
+}
+
+}
+
 async function processAll(){
 
 const files=document.getElementById("sourceFiles").files
 const template=document.getElementById("templateFile").files[0]
+const instructions=document.getElementById("instructions").value
 
-results=[]
-
-let count=0
+extractedText=""
 
 for(const file of files){
 
 document.getElementById("progress").innerText="Procesando "+file.name
-
 let text=await extractText(file)
-let data=await analyzeWithGemini(text)
+extractedText += "\n"+text
 
-results.push({
-archivo:file.name,
-datos:data
-})
-
-count++
 }
 
-document.getElementById("progress").innerText="Procesados "+count+" documentos"
+const templateText = await extractText(template)
+const data = await analyzeWithGemini(extractedText,templateText,instructions)
 
+results=data
+
+document.getElementById("progress").innerText="Procesamiento completado"
 document.getElementById("output").innerText=JSON.stringify(results,null,2)
 
 }
 
 async function extractText(file){
+
+if(!file) return ""
 
 const type=file.name.split(".").pop().toLowerCase()
 
@@ -77,18 +94,26 @@ return fullText
 }
 
 return ""
+
 }
 
-async function analyzeWithGemini(text){
+async function analyzeWithGemini(sourceText,templateText,instructions){
 
 const key=document.getElementById("apiKey").value
 
 const prompt=`
-Extrae los datos clave del documento.
-Devuelve un JSON estructurado con la información relevante.
+Analiza los documentos fuente y la plantilla destino.
 
-Texto:
-${text.slice(0,10000)}
+Documentos fuente:
+${sourceText}
+
+Plantilla destino:
+${templateText}
+
+Instrucciones del usuario:
+${instructions}
+
+Devuelve un JSON con los datos que deben insertarse en la plantilla.
 `
 
 const response=await fetch(
@@ -102,33 +127,28 @@ contents:[{parts:[{text:prompt}]}]
 })
 
 const data=await response.json()
-
 return data
-}
-
-function exportExcel(){
-
-const ws=XLSX.utils.json_to_sheet(results)
-const wb=XLSX.utils.book_new()
-XLSX.utils.book_append_sheet(wb,ws,"Resultados")
-XLSX.writeFile(wb,"ordocx_batch.xlsx")
 
 }
 
-async function exportPDF(){
+async function exportWord(){
 
-const pdfDoc=await PDFLib.PDFDocument.create()
-const page=pdfDoc.addPage()
+const {Document,Packer,Paragraph,TextRun}=docx
 
-page.drawText(JSON.stringify(results,null,2),{x:20,y:700,size:10})
+const doc=new Document({
+sections:[{
+children:[
+new Paragraph({children:[new TextRun("Resultado generado por ORDOCX")]}),
+new Paragraph({children:[new TextRun(JSON.stringify(results,null,2))]})
+]
+}]
+})
 
-const bytes=await pdfDoc.save()
-
-const blob=new Blob([bytes],{type:"application/pdf"})
+const blob=await Packer.toBlob(doc)
 
 const a=document.createElement("a")
 a.href=URL.createObjectURL(blob)
-a.download="ordocx_batch.pdf"
+a.download="resultado_final.docx"
 a.click()
 
 }
