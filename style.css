@@ -1,31 +1,38 @@
 
 body{
-font-family:Arial;
 background:#0f172a;
 color:white;
-padding:30px;
+font-family:Arial;
+padding:20px;
 }
 
 .panel{
 background:#1e293b;
-padding:20px;
-margin-bottom:20px;
+padding:15px;
 border-radius:8px;
-}
-
-input,textarea{
-width:100%;
-padding:8px;
-margin:10px 0;
+margin-bottom:15px;
 }
 
 button{
-padding:10px 15px;
+padding:8px 14px;
+border:none;
+border-radius:6px;
+background:#38bdf8;
 cursor:pointer;
 }
 
-#progress{
-margin-top:10px;
+textarea{
+width:100%;
+height:120px;
+}
+
+.fileItem{
+padding:4px;
+border-bottom:1px solid #334155;
+}
+
+.status{
 color:#38bdf8;
 font-weight:bold;
+margin-top:10px;
 }

@@ -1,21 +1,23 @@
 
-# ORDOCX v10
+ORDOCX v11
 
 Motor de automatización documental con IA.
 
-## Funciones
-- Carga múltiple de documentos fuente
-- OCR de imágenes
-- Lectura de PDF, DOCX y Excel
-- Análisis con Gemini
-- Uso de plantilla destino
-- Instrucciones personalizadas del usuario
-- Generación de documento final
+Archivos:
+index.html
+engine.js
+style.css
 
-## Uso
-1. Introducir API Gemini
-2. Cargar documentos fuente
-3. Cargar plantilla destino
-4. Escribir instrucciones
-5. Procesar documentos
-6. Descargar resultado final
+Funciones:
+- Carga múltiple de archivos
+- OCR con Tesseract
+- Análisis con Gemini API
+- Manejo de errores
+- Exportación de resultados
+
+Uso:
+1. Subir documentos fuente
+2. Introducir API Key
+3. Escribir instrucciones
+4. Procesar documentos
+5. Descargar resultado

@@ -5,44 +5,8 @@
 <meta charset="UTF-8">
 <title>ORDOCX</title>
 
-<style>
-body{
-background:#0f172a;
-color:white;
-font-family:Arial;
-padding:20px;
-}
-
-.panel{
-background:#1e293b;
-padding:15px;
-border-radius:8px;
-margin-bottom:15px;
-}
-
-button{
-padding:8px 14px;
-border:none;
-border-radius:6px;
-background:#38bdf8;
-cursor:pointer;
-}
-
-textarea{
-width:100%;
-height:100px;
-}
-
-.fileItem{
-padding:4px;
-border-bottom:1px solid #334155;
-}
-
-.status{
-color:#38bdf8;
-font-weight:bold;
-}
-</style>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -73,7 +37,7 @@ API KEY
 
 <div class="panel">
 <button onclick="processBatch()">Procesar documentos</button>
-<div class="status" id="status"></div>
+<div id="status" class="status"></div>
 </div>
 
 <div class="panel">
