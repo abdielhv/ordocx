@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>ORDOCX v7</title>
+<title>ORDOCX v8</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -17,19 +16,30 @@
 
 <body>
 
-<h1>ORDOCX v7 – Automatización Documental</h1>
+<h1>ORDOCX v8 – Automatización Documental IA</h1>
 
 <section class="panel">
-<h3>Gemini API</h3>
+<h3>Configuración API Gemini</h3>
 <input id="apiKey" placeholder="AIza...">
 <button onclick="validateAPI()">Validar</button>
 <span id="apiStatus">No validada</span>
 </section>
 
 <section class="panel">
-<h3>Cargar documentos</h3>
-<input type="file" id="files" multiple>
-<button onclick="processBatch()">Procesar lote</button>
+<h3>Entrada de Información (Fuente)</h3>
+<input type="file" id="sourceFiles" multiple>
+<ul id="fileList"></ul>
+</section>
+
+<section class="panel">
+<h3>Documento Destino (Plantilla)</h3>
+<input type="file" id="templateFile">
+</section>
+
+<section class="panel">
+<h3>Procesamiento</h3>
+<button onclick="processAll()">Procesar Información</button>
+<div id="progress"></div>
 </section>
 
 <section class="panel">

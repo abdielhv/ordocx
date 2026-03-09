@@ -1,18 +1,18 @@
+# ORDOCX v8
 
-ORDOCX v7
+Sistema de automatización documental con IA.
 
-Nuevas funciones:
-
+## Funciones
+- OCR de imágenes
+- Lectura de PDF, DOCX y Excel
 - Procesamiento por lotes
-- Detección automática de campos con Gemini
-- Exportación de resultados combinados
-- Preparado para automatización documental
+- Análisis con Gemini
+- Exportación a PDF y Excel
 
-Uso:
-
-1. Descomprimir
-2. Abrir index.html
-3. Introducir API Gemini
-4. Subir múltiples documentos
-5. Procesar lote
+## Uso
+1. Abrir index.html
+2. Introducir API Gemini
+3. Cargar archivos fuente
+4. Cargar plantilla destino (opcional)
+5. Procesar información
 6. Exportar resultados

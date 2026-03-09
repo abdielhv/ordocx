@@ -1,4 +1,3 @@
-
 let results=[]
 
 function validateAPI(){
@@ -13,21 +12,31 @@ document.getElementById("apiStatus").innerText="API inválida"
 
 }
 
-async function processBatch(){
+async function processAll(){
 
-const files=document.getElementById("files").files
+const files=document.getElementById("sourceFiles").files
+const template=document.getElementById("templateFile").files[0]
 
 results=[]
 
+let count=0
+
 for(const file of files){
 
-let text=await extractText(file)
+document.getElementById("progress").innerText="Procesando "+file.name
 
+let text=await extractText(file)
 let data=await analyzeWithGemini(text)
 
-results.push(data)
+results.push({
+archivo:file.name,
+datos:data
+})
 
+count++
 }
+
+document.getElementById("progress").innerText="Procesados "+count+" documentos"
 
 document.getElementById("output").innerText=JSON.stringify(results,null,2)
 
@@ -38,52 +47,49 @@ async function extractText(file){
 const type=file.name.split(".").pop().toLowerCase()
 
 if(type==="png"||type==="jpg"||type==="jpeg"){
-
 const r=await Tesseract.recognize(file)
 return r.data.text
-
 }
 
 if(type==="xlsx"){
-
 const data=await file.arrayBuffer()
 const wb=XLSX.read(data)
 const sheet=wb.Sheets[wb.SheetNames[0]]
 return XLSX.utils.sheet_to_csv(sheet)
-
 }
 
 if(type==="docx"){
-
 const buffer=await file.arrayBuffer()
 const r=await mammoth.extractRawText({arrayBuffer:buffer})
 return r.value
-
 }
 
 if(type==="pdf"){
-
 const buffer=await file.arrayBuffer()
 const pdf=await pdfjsLib.getDocument({data:buffer}).promise
-const page=await pdf.getPage(1)
+let fullText=""
+for(let p=1;p<=pdf.numPages;p++){
+const page=await pdf.getPage(p)
 const content=await page.getTextContent()
-return content.items.map(i=>i.str).join(" ")
-
+fullText+=content.items.map(i=>i.str).join(" ")
+}
+return fullText
 }
 
 return ""
-
 }
 
 async function analyzeWithGemini(text){
 
 const key=document.getElementById("apiKey").value
 
-if(!key.startsWith("AIza")){
-return {error:"API no válida"}
-}
+const prompt=`
+Extrae los datos clave del documento.
+Devuelve un JSON estructurado con la información relevante.
 
-const prompt=`Extrae campos clave y tablas del siguiente documento y devuelve JSON: ${text.slice(0,4000)}`
+Texto:
+${text.slice(0,10000)}
+`
 
 const response=await fetch(
 `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`,
@@ -98,7 +104,6 @@ contents:[{parts:[{text:prompt}]}]
 const data=await response.json()
 
 return data
-
 }
 
 function exportExcel(){
