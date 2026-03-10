@@ -1,3 +1,4 @@
+import { generateDocx } from "./modules/docxGenerator.js"
 import { runOCR } from "./modules/ocr.js"
 import { runAI } from "./modules/ai.js"
 import { buildPrompt } from "./modules/parser.js"
