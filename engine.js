@@ -1,4 +1,6 @@
-
+import { runOCR } from "./modules/ocr.js"
+import { runAI } from "./modules/ai.js"
+import { buildPrompt } from "./modules/parser.js"
 let files=[]
 
 document.getElementById("fileInput").addEventListener("change",function(e){
